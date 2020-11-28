@@ -4,21 +4,28 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coffee } from './entities/coffees.entities';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
+import { FlavorEntity } from './entities/flavor.entity';
 
 @Injectable()
 export class CoffeesService {
     constructor(
         @InjectRepository(Coffee)
-        private readonly coffeRepository: Repository<Coffee>
+        private readonly coffeRepository: Repository<Coffee>,
+        @InjectRepository(FlavorEntity)
+        private readonly flavorRepositroy: Repository<FlavorEntity>
     ) {}
 
     findAll() {
-        return this.coffeRepository.find();
+        return this.coffeRepository.find({
+            relations: ['flavors']
+        });
     }
 
     async findOne(id:string) {
         
-        const coffee =  await this.coffeRepository.findOne(id);
+        const coffee =  await this.coffeRepository.findOne(id, {
+            relations: ['flavors']
+        });
         if(!coffee){
             throw new NotFoundException(`Coffee don't have id : ${id}`)
         }
